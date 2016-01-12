@@ -134,7 +134,17 @@ public class MainActivity extends AppCompatActivity {
         Uri selectedImage = imageUri;
         getContentResolver().notifyChange(selectedImage, null);
         ContentResolver cr = getContentResolver();
-        return MediaStore.Images.Media.getBitmap(cr, selectedImage);
+
+        Bitmap bitmap = MediaStore.Images.Media.getBitmap(cr, selectedImage);
+        int W = bitmap.getWidth();
+        int H = bitmap.getHeight();
+        int mWH = W>H?H:W;
+
+        int sW = (W-mWH)/2;
+        int sH = (H-mWH)/2;
+        Bitmap cropped = Bitmap.createBitmap(bitmap, sW, sH, W - sW, H - sH);
+
+        return cropped;
     }
 
     @Override
