@@ -142,7 +142,7 @@ public class MainActivity extends AppCompatActivity {
 
         int sW = (W-mWH)/2;
         int sH = (H-mWH)/2;
-        Bitmap cropped = Bitmap.createBitmap(bitmap, sW, sH, W - sW, H - sH);
+        Bitmap cropped = Bitmap.createBitmap(bitmap, sW, sH, W - (W-mWH), H - (H-mWH));
 
         return cropped;
     }
