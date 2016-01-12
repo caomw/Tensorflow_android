@@ -33,11 +33,19 @@
             />
     </RelativeLayout>
 
+    <Button
+        android:layout_width="fill_parent"
+        android:layout_height="wrap_content"
+        android:id="@+id/upload_button"
+        android:text="@string/upload_button"
+        android:layout_centerHorizontal="true"
+        />
     <ImageView
         android:layout_width="fill_parent"
         android:layout_height="wrap_content"
         android:contentDescription="@string/image_cd_camera"
         android:id="@+id/image_camera"
         />
+
 
 </LinearLayout>

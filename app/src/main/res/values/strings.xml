@@ -2,5 +2,6 @@
     <string name="app_name">Tensorflow</string>
     <string name="action_settings">Settings</string>
     <string name="button_camera">Take the picture!</string>
+    <string name="upload_button">Send to server!</string>
     <string name="image_cd_camera">image</string>
 </resources>

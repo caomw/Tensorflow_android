@@ -5,6 +5,7 @@ import android.content.ContentResolver;
 import android.content.ContentValues;
 import android.content.Intent;
 import android.graphics.Bitmap;
+import android.graphics.Color;
 import android.net.Uri;
 import android.os.Environment;
 import android.provider.MediaStore;
@@ -23,6 +24,9 @@ import android.widget.Button;
 import android.widget.ImageView;
 import android.widget.Toast;
 
+import org.json.JSONArray;
+import org.json.JSONObject;
+
 import java.io.ByteArrayInputStream;
 import java.io.ByteArrayOutputStream;
 import java.io.File;
@@ -32,8 +36,6 @@ public class MainActivity extends AppCompatActivity {
     private static String log = "Zoonoo Camera App";
     private static int TAKE_PICTURE = 1;
     private Uri imageUri;
-    private ImageView imageView = (ImageView)findViewById(R.id.image_camera);
-
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -53,11 +55,47 @@ public class MainActivity extends AppCompatActivity {
 
         Button cameraButton = (Button)findViewById(R.id.button_camera);
         cameraButton.setOnClickListener(cameraListener);
+        Button uploadButton = (Button)findViewById(R.id.upload_button);
+        uploadButton.setVisibility(Button.GONE);
+        uploadButton.setOnClickListener(uploadListener);
     }
 
     private OnClickListener cameraListener = new OnClickListener() {
         public void onClick(View v) {
             takePhoto(v);
+        }
+    };
+
+    public int printPixelARGB(int pixel) {
+        int red = Color.red(pixel);
+        int green = Color.green(pixel);
+        int blue = Color.blue(pixel);
+        int reverse_avg = (255-(red+green+blue)/3);
+        return reverse_avg;
+    }
+    private OnClickListener uploadListener = new OnClickListener() {
+        public void onClick(View v) {
+            try {
+                Bitmap bitmap = getPhotoImage();
+                Bitmap resized = Bitmap.createScaledBitmap(bitmap, 28, 28, true);
+                int w = resized.getWidth();
+                int h = resized.getHeight();
+
+                int[] arr = new int[784];
+                for (int i=0;i<h;i++) {
+                    for (int j=0;j<w;j++) {
+                        arr[28*i+j] = printPixelARGB(resized.getPixel(j, i));
+                    }
+                }
+                JSONArray jsArray = new JSONArray();
+                for (int i=0;i<784;i++) jsArray.put(arr[i]);
+                JSONObject obj = new JSONObject();
+                obj.put("data", jsArray);
+
+                APIConnector.uploadJsonToServer(obj);
+            } catch(Exception e) {
+                Log.d(log, e.toString());
+            }
         }
     };
 
@@ -69,23 +107,25 @@ public class MainActivity extends AppCompatActivity {
         startActivityForResult(intent, TAKE_PICTURE);
     }
 
+    protected Bitmap getPhotoImage() throws Exception {
+        Uri selectedImage = imageUri;
+        getContentResolver().notifyChange(selectedImage, null);
+        ContentResolver cr = getContentResolver();
+        return MediaStore.Images.Media.getBitmap(cr, selectedImage);
+    }
+
     @Override
     protected void onActivityResult(int requestCode, int resultCode, Intent intent) {
         super.onActivityResult(requestCode, resultCode, intent);
 
         if (resultCode == Activity.RESULT_OK) {
-            Uri selectedImage = imageUri;
-            /* notifies other application of your content. keep everybody on the same page. */
-            getContentResolver().notifyChange(selectedImage, null);
-
             ImageView imageView = (ImageView)findViewById(R.id.image_camera);
-            ContentResolver cr = getContentResolver();
-            Bitmap bitmap;
 
             try {
-                bitmap = MediaStore.Images.Media.getBitmap(cr, selectedImage);
+                Bitmap bitmap = this.getPhotoImage();
                 imageView.setImageBitmap(bitmap);
-                Toast.makeText(MainActivity.this, selectedImage.toString(), Toast.LENGTH_LONG);
+                findViewById(R.id.upload_button).setVisibility(Button.VISIBLE);
+                Toast.makeText(MainActivity.this, imageUri.toString(), Toast.LENGTH_LONG);
             } catch(Exception e) {
                 Log.d(log, e.toString());
             }
