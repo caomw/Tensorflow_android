@@ -1,13 +1,17 @@
 package uwcj.kr.tensorflow;
 
 import android.app.Activity;
+import android.app.AlertDialog;
 import android.content.ContentResolver;
 import android.content.ContentValues;
+import android.content.DialogInterface;
 import android.content.Intent;
 import android.graphics.Bitmap;
 import android.graphics.Color;
 import android.net.Uri;
 import android.os.Environment;
+import android.os.Handler;
+import android.os.Message;
 import android.provider.MediaStore;
 import android.util.Base64;
 import android.util.Log;
@@ -24,6 +28,7 @@ import android.widget.Button;
 import android.widget.ImageView;
 import android.widget.Toast;
 
+import org.apache.http.HttpResponse;
 import org.json.JSONArray;
 import org.json.JSONObject;
 
@@ -73,6 +78,24 @@ public class MainActivity extends AppCompatActivity {
         int reverse_avg = (255-(red+green+blue)/3);
         return reverse_avg;
     }
+
+    private Handler handler = new Handler() {
+        public void handleMessage(Message msg) {
+            String responseString = (String)msg.obj;
+            AlertDialog dialog = new AlertDialog.Builder(MainActivity.this)
+                    .setTitle("Response")
+                    .setMessage(responseString)
+                    .setPositiveButton("OK", new DialogInterface.OnClickListener() {
+                        @Override
+                        public void onClick(DialogInterface dialog, int which) {
+                            dialog.dismiss();
+                        }
+                    })
+                    .show();
+
+        }
+    };
+
     private OnClickListener uploadListener = new OnClickListener() {
         public void onClick(View v) {
             try {
@@ -92,7 +115,7 @@ public class MainActivity extends AppCompatActivity {
                 JSONObject obj = new JSONObject();
                 obj.put("data", jsArray);
 
-                APIConnector.uploadJsonToServer(obj);
+                APIConnector.uploadJsonToServer(obj, handler);
             } catch(Exception e) {
                 Log.d(log, e.toString());
             }
