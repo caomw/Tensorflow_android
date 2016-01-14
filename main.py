@@ -43,7 +43,7 @@ def mnist():
         for j in range(28):
             new_arr.append(array[28*i+j])
         print new_arr
-    input = ((255 - np.array(array, dtype=np.uint8)) / 255.0).reshape(1, 784)
+    input = ((np.array(array, dtype=np.uint8)) / 255.0).reshape(1, 784)
 
     #output1 = simple(input)
     output2 = convolutional(input)

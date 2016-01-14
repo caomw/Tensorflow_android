@@ -32,7 +32,7 @@ import java.util.PriorityQueue;
  */
 public class APIConnector {
     private static String log = "APIConnector";
-    static String server_url = "http://110.76.95.149:20000";
+    static String server_url = "http://52.192.172.38:20000";
     public static void uploadJsonToServer(final JSONObject obj, final Handler handler) {
         Thread thread = new Thread() {
             @Override
